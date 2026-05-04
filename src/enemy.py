@@ -16,18 +16,21 @@ class Enemy:
                 self.target_pos = pygame.math.Vector2(pulse.pos.x, pulse.pos.y)
 
 
-    def update(self, walls):
+    def update(self, walls, player_pos):
+        dist_to_player = self.pos.distance_to(player_pos)
+        if dist_to_player < 80: 
+            self.target_pos = pygame.math.Vector2(player_pos.x, player_pos.y)
+
         if self.target_pos:
             direction = (self.target_pos - self.pos)
-            
-            if direction.length() > 5: 
+            if direction.length() > 5:
                 direction = direction.normalize()
                 self.pos += direction * ENEMY_SPEED
                 self.rect.center = (int(self.pos.x), int(self.pos.y))
                 
                 for wall in walls:
                     if self.rect.colliderect(wall):
-                        self.target_pos = None 
+                        self.target_pos = None
             else:
                 self.target_pos = None 
 
