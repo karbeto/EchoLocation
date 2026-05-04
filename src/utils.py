@@ -24,5 +24,5 @@ class Pulse:
 
     def draw(self, surface):
         if self.active:
-            pygame.draw.circle(surface, (self.alpha, self.alpha, self.alpha), 
-                               self.pos, self.radius, width=2)
+            color = (self.alpha, self.alpha, self.alpha)
+            pygame.draw.circle(surface, color, self.pos, self.radius, width=3)
