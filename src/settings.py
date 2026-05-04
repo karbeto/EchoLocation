@@ -1,0 +1,20 @@
+import pygame
+
+# Display Settings
+SCREEN_WIDTH = 1280
+SCREEN_HEIGHT = 720
+FPS = 60
+TITLE = "EchoLocation"
+
+# Physics/Movement
+PLAYER_SPEED = 4
+PULSE_EXPANSION_SPEED = 5
+PULSE_MAX_RADIUS = 350
+PULSE_FADE_RATE = 4 
+
+# Colors
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+NEON_CYAN = (0, 255, 255)
+NEON_RED = (255, 20, 147)
+NEON_GOLD = (255, 215, 0)
