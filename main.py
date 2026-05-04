@@ -13,9 +13,11 @@ class EchoLocation:
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont("Arial", 32)
         
+        self.level_files = ['levels/level1.txt', 'levels/level2.txt']
+        self.current_level_idx = 0
         self.state = STATE_MENU
         
-        self.level = Level('levels/level1.txt')
+        self.level = Level(self.level_files[self.current_level_idx])
         
         self.world_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.mask_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -26,6 +28,17 @@ class EchoLocation:
         self.player = Player(*self.level.player_spawn_pos)
         self.enemies = [Enemy(pos[0], pos[1]) for pos in self.level.enemies_spawn_pos]
         self.mask_surface.fill(BLACK)
+
+    def _next_level(self):
+        self.current_level_idx += 1
+        
+        if self.current_level_idx < len(self.level_files):
+            self.level = Level(self.level_files[self.current_level_idx])
+            self._reset_game()
+            self.state = STATE_PLAYING
+            print(f"Advancing to Level {self.current_level_idx + 1}")
+        else:
+            self.state = STATE_WIN
 
 
     def _handle_events(self):
@@ -39,8 +52,15 @@ class EchoLocation:
                     if event.key == pygame.K_SPACE:
                         self.state = STATE_PLAYING
                 
-                elif self.state in [STATE_GAMEOVER, STATE_WIN]:
+                elif self.state == STATE_GAMEOVER:
                     if event.key == pygame.K_SPACE:
+                        self._reset_game()
+                        self.state = STATE_PLAYING
+                
+                elif self.state == STATE_WIN:
+                    if event.key == pygame.K_SPACE:
+                        self.current_level_idx = 0
+                        self.level = Level(self.level_files[self.current_level_idx])
                         self._reset_game()
                         self.state = STATE_PLAYING
 
@@ -55,9 +75,9 @@ class EchoLocation:
             
             if self.player.rect.colliderect(enemy.rect):
                 self.state = STATE_GAMEOVER
-                
+        
         if self.level.goal_rect and self.player.rect.colliderect(self.level.goal_rect):
-            self.state = STATE_WIN
+            self._next_level()
 
 
     def _draw_menu_screen(self):
@@ -76,7 +96,7 @@ class EchoLocation:
 
     def _draw_win_screen(self):
         self.screen.fill(BLACK)
-        text = self.font.render("YOU FOUND THE LIGHT! PRESS SPACE TO PLAY AGAIN", True, NEON_GOLD)
+        text = self.font.render("ALL LEVELS CLEAR. PRESS SPACE TO RESTART", True, NEON_GOLD)
         rect = text.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2))
         self.screen.blit(text, rect)
 
@@ -106,8 +126,12 @@ class EchoLocation:
         current_time = pygame.time.get_ticks()
         progress = min(1.0, (current_time - self.player.last_pulse_time) / PULSE_COOLDOWN)
         bar_width = 200
+        
         pygame.draw.rect(self.screen, (50, 50, 50), (SCREEN_WIDTH//2 - 100, SCREEN_HEIGHT - 40, bar_width, 10))
         pygame.draw.rect(self.screen, NEON_CYAN, (SCREEN_WIDTH//2 - 100, SCREEN_HEIGHT - 40, bar_width * progress, 10))
+        
+        lvl_text = self.font.render(f"Level {self.current_level_idx + 1}", True, WHITE)
+        self.screen.blit(lvl_text, (20, SCREEN_HEIGHT - 50))
 
 
     def run(self):
@@ -126,6 +150,7 @@ class EchoLocation:
             
             pygame.display.flip()
             self.clock.tick(FPS)
+
 
 if __name__ == "__main__":
     game = EchoLocation()
