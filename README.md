@@ -29,7 +29,7 @@
 
 Launch the game by executing the `main.py` file from the root directory:
     ```bash
-        python main.py
+    python main.py
 
 
 # 🎮 How to Play
