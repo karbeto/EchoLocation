@@ -18,7 +18,7 @@
 ### Installation
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/yourusername/echo-location.git](https://github.com/yourusername/echo-location.git)
+    git clone https://github.com/karbeto/EchoLocation.git
     cd echo-location
 
 2. **Install dependencies:**
@@ -37,7 +37,7 @@ Launch the game by executing the `main.py` file from the root directory:
 * **Pulse (Echolocation)**: Press the Spacebar to emit a sound pulse. This reveals your surroundings but alerts nearby enemies to your exact position
 * **Move:** Use the Arrow Keys or WASD to navigate through the darkness.
 
-* ## The Objective:
+* **The Objective:**
 
 1. Explore the map to find the **Gold Key (K).**
 2. Once acquired, the UI will update to **"KEY: ACQUIRED".**
