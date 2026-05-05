@@ -6,6 +6,7 @@ from src.enemy import Enemy
 from src.level import Level
 
 class EchoLocation:
+    
     def __init__(self):
         pygame.init()
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -24,10 +25,13 @@ class EchoLocation:
         
         self._reset_game()
 
+
     def _reset_game(self):
         self.player = Player(*self.level.player_spawn_pos)
         self.enemies = [Enemy(pos[0], pos[1]) for pos in self.level.enemies_spawn_pos]
         self.mask_surface.fill(BLACK)
+        self.player.has_key = False
+
 
     def _next_level(self):
         self.current_level_idx += 1
@@ -69,6 +73,11 @@ class EchoLocation:
         self.player.handle_input()
         self.player.update(self.level.walls)
         
+        if not self.player.has_key and self.level.key_rect:
+            if self.player.rect.colliderect(self.level.key_rect):
+                self.player.has_key = True
+                print("KEY COLLECTED!")
+
         for enemy in self.enemies:
             enemy.listen(self.player.pulses)
             enemy.update(self.level.walls, self.player.pos)
@@ -77,7 +86,10 @@ class EchoLocation:
                 self.state = STATE_GAMEOVER
         
         if self.level.goal_rect and self.player.rect.colliderect(self.level.goal_rect):
-            self._next_level()
+            if self.player.has_key:
+                self._next_level()
+            else:
+                pass
 
 
     def _draw_menu_screen(self):
@@ -104,6 +116,10 @@ class EchoLocation:
     def _draw_playing_screen(self):
         self.world_surface.fill(BLACK)
         self.level.draw(self.world_surface)
+        
+        if not self.player.has_key and self.level.key_rect:
+            pygame.draw.rect(self.world_surface, NEON_GOLD, self.level.key_rect, 3)
+            
         for enemy in self.enemies:
             enemy.draw(self.world_surface)
         self.player.draw(self.world_surface)
@@ -115,6 +131,7 @@ class EchoLocation:
         
         for pulse in self.player.pulses:
             pulse.draw(self.mask_surface)
+            
             
         self.screen.blit(self.world_surface, (0, 0))
         self.screen.blit(self.mask_surface, (0, 0), special_flags=pygame.BLEND_MULT)
@@ -132,6 +149,13 @@ class EchoLocation:
         
         lvl_text = self.font.render(f"Level {self.current_level_idx + 1}", True, WHITE)
         self.screen.blit(lvl_text, (20, SCREEN_HEIGHT - 50))
+        
+        if self.player.has_key:
+            key_text = self.font.render("KEY: ACQUIRED", True, NEON_GOLD)
+            self.screen.blit(key_text, (SCREEN_WIDTH - 220, SCREEN_HEIGHT - 50))
+        else:
+            key_text = self.font.render("KEY: REQUIRED", True, (100, 100, 100))
+            self.screen.blit(key_text, (SCREEN_WIDTH - 220, SCREEN_HEIGHT - 50))
 
 
     def run(self):

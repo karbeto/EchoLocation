@@ -8,7 +8,8 @@ class Level:
         self.enemies_spawn_pos = []
         self.player_spawn_pos = [100, 100]
         self.tile_size = 64
-        self.goal_rect = None  
+        self.key_rect = None 
+        self.goal_rect = None 
         self.load_level(path)
 
 
@@ -28,6 +29,8 @@ class Level:
                             self.enemies_spawn_pos.append((x + self.tile_size // 2, y + self.tile_size // 2))
                         elif char == 'G':
                             self.goal_rect = pygame.Rect(x, y, self.tile_size, self.tile_size)
+                        elif char == 'K':
+                            self.key_rect = pygame.Rect(x, y, self.tile_size, self.tile_size)
                             
         except FileNotFoundError:
             print(f"Error: {path} not found. Create a 'levels' folder with 'level1.txt'")

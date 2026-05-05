@@ -1,5 +1,5 @@
 import pygame
-from .settings import PLAYER_SPEED, PULSE_COOLDOWN, PULSE_MAX_RADIUS
+from .settings import PLAYER_SPEED, PULSE_COOLDOWN, PULSE_MAX_RADIUS, NEON_GOLD
 from .utils import Pulse
 
 class Player:
@@ -10,6 +10,7 @@ class Player:
         self.pulses = []
         self.rect = pygame.Rect(x-10, y-10, 20, 20)
         self.last_pulse_time = 0
+        self.has_key = False
 
 
     def handle_input(self):
@@ -60,4 +61,7 @@ class Player:
 
 
     def draw(self, surface):
+        if self.has_key:
+            pygame.draw.circle(surface, NEON_GOLD, self.rect.center, 5)
+            
         pygame.draw.rect(surface, (0, 255, 255), self.rect, 2)
