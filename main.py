@@ -4,11 +4,14 @@ from src.settings import *
 from src.player import Player
 from src.enemy import Enemy
 from src.level import Level
+from src.audio_manager import AudioManager 
 
 class EchoLocation:
     
     def __init__(self):
         pygame.init()
+        self.audio_manager = AudioManager() 
+        
         self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         pygame.display.set_caption(TITLE)
         self.clock = pygame.time.Clock()
@@ -27,8 +30,11 @@ class EchoLocation:
 
 
     def _reset_game(self):
-        self.player = Player(*self.level.player_spawn_pos)
-        self.enemies = [Enemy(pos[0], pos[1]) for pos in self.level.enemies_spawn_pos]
+        self.player = Player(*self.level.player_spawn_pos, self.audio_manager)
+        self.enemies = [
+            Enemy(pos[0], pos[1], self.audio_manager) 
+            for pos in self.level.enemies_spawn_pos
+        ]
         self.mask_surface.fill(BLACK)
         self.player.has_key = False
 
@@ -37,11 +43,13 @@ class EchoLocation:
         self.current_level_idx += 1
         
         if self.current_level_idx < len(self.level_files):
+            self.audio_manager.play_effect('level_finish') 
             self.level = Level(self.level_files[self.current_level_idx])
             self._reset_game()
             self.state = STATE_PLAYING
             print(f"Advancing to Level {self.current_level_idx + 1}")
         else:
+            self.audio_manager.play_effect('level_finish')
             self.state = STATE_WIN
 
 
@@ -76,6 +84,7 @@ class EchoLocation:
         if not self.player.has_key and self.level.key_rect:
             if self.player.rect.colliderect(self.level.key_rect):
                 self.player.has_key = True
+                self.audio_manager.play_effect('key_found') 
                 print("KEY COLLECTED!")
 
         for enemy in self.enemies:
@@ -88,8 +97,6 @@ class EchoLocation:
         if self.level.goal_rect and self.player.rect.colliderect(self.level.goal_rect):
             if self.player.has_key:
                 self._next_level()
-            else:
-                pass
 
 
     def _draw_menu_screen(self):
@@ -131,7 +138,6 @@ class EchoLocation:
         
         for pulse in self.player.pulses:
             pulse.draw(self.mask_surface)
-            
             
         self.screen.blit(self.world_surface, (0, 0))
         self.screen.blit(self.mask_surface, (0, 0), special_flags=pygame.BLEND_MULT)

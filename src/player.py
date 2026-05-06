@@ -4,13 +4,18 @@ from .utils import Pulse
 
 class Player:
     
-    def __init__(self, x, y):
+    def __init__(self, x, y, audio_manager):
         self.pos = pygame.math.Vector2(x, y)
         self.vel = pygame.math.Vector2(0, 0)
         self.pulses = []
         self.rect = pygame.Rect(x-10, y-10, 20, 20)
         self.last_pulse_time = 0
         self.has_key = False
+        
+        # Audio integration
+        self.audio_manager = audio_manager
+        self.footstep_delay = 350  # milliseconds between footstep sounds
+        self.last_footstep_time = 0
 
 
     def handle_input(self):
@@ -21,6 +26,12 @@ class Player:
         
         if self.vel.length() > 0:
             self.vel = self.vel.normalize() * PLAYER_SPEED
+            
+            # Play footstep sound if moving
+            current_time = pygame.time.get_ticks()
+            if current_time - self.last_footstep_time > self.footstep_delay:
+                self.audio_manager.play_effect('footsteps', volume=0.3)
+                self.last_footstep_time = current_time
         
         current_time = pygame.time.get_ticks()
         if keys[pygame.K_SPACE] and current_time - self.last_pulse_time > PULSE_COOLDOWN:
@@ -31,6 +42,8 @@ class Player:
     def emit_pulse(self):
         if len(self.pulses) < 3: 
             self.pulses.append(Pulse(self.pos.x, self.pos.y, PULSE_MAX_RADIUS))
+            # Trigger the pulse sound
+            self.audio_manager.play_pulse(0)
           
           
     def _handle_collision(self, walls, direction):

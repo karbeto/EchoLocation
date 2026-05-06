@@ -4,10 +4,14 @@ from .settings import *
 
 class Enemy:
     
-    def __init__(self, x, y):
+    def __init__(self, x, y, audio_manager):
         self.pos = pygame.math.Vector2(x, y)
         self.rect = pygame.Rect(0, 0, 32, 32)
         self.rect.center = (int(self.pos.x), int(self.pos.y))
+        
+        # Audio and Detection
+        self.audio_manager = audio_manager
+        self.heard_pulse = False # Flag to prevent sound spam
         
         self.target_pos = None
         self.is_chasing = False
@@ -25,12 +29,21 @@ class Enemy:
         self.patrol_target = self.start_pos + offset
 
     def listen(self, pulses):
+        # Reset flag if no pulses are active
+        if not pulses:
+            self.heard_pulse = False
+
         for pulse in pulses:
             dist = self.pos.distance_to(pulse.pos)
             if dist < pulse.radius:
                 self.target_pos = pygame.math.Vector2(pulse.pos.x, pulse.pos.y)
                 self.is_chasing = True
                 self.chase_timer = 180  
+                
+                # Play enemy 'revealed' sound once per pulse
+                if not self.heard_pulse:
+                    self.audio_manager.play_effect('enemy', volume=0.6)
+                    self.heard_pulse = True
 
 
     def update(self, walls, player_pos):
