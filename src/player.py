@@ -12,9 +12,8 @@ class Player:
         self.last_pulse_time = 0
         self.has_key = False
         
-        # Audio integration
         self.audio_manager = audio_manager
-        self.footstep_delay = 350  # milliseconds between footstep sounds
+        self.footstep_delay = 350
         self.last_footstep_time = 0
 
 
@@ -27,7 +26,6 @@ class Player:
         if self.vel.length() > 0:
             self.vel = self.vel.normalize() * PLAYER_SPEED
             
-            # Play footstep sound if moving
             current_time = pygame.time.get_ticks()
             if current_time - self.last_footstep_time > self.footstep_delay:
                 self.audio_manager.play_effect('footsteps', volume=0.3)
@@ -42,7 +40,6 @@ class Player:
     def emit_pulse(self):
         if len(self.pulses) < 3: 
             self.pulses.append(Pulse(self.pos.x, self.pos.y, PULSE_MAX_RADIUS))
-            # Trigger the pulse sound
             self.audio_manager.play_pulse(0)
           
           

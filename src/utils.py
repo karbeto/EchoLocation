@@ -12,10 +12,8 @@ class Pulse:
 
 
     def update(self):
-        # Expand the radius
         self.radius += PULSE_EXPANSION_SPEED
         
-        # Fade out as it expands
         self.alpha -= PULSE_FADE_RATE
         if self.alpha <= 0 or self.radius >= self.max_radius:
             self.alpha = 0
