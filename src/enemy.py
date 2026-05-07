@@ -20,12 +20,14 @@ class Enemy:
         self.patrol_target = pygame.math.Vector2(x, y)
         self._pick_new_patrol()
 
+
     def _pick_new_patrol(self):
         angle = random.uniform(0, 360)
         distance = random.randint(150, 400)
         offset = pygame.math.Vector2()
         offset.from_polar((distance, angle))
         self.patrol_target = self.start_pos + offset
+
 
     def listen(self, pulses):
         if not pulses:
@@ -87,6 +89,7 @@ class Enemy:
                 self.target_pos = None
 
 
-    def draw(self, surface):
-        pygame.draw.rect(surface, NEON_RED, self.rect)
-        pygame.draw.rect(surface, (255, 255, 255), self.rect, 1)
+    def draw(self, surface, camera):
+        draw_rect = camera.apply(self.rect)
+        pygame.draw.rect(surface, NEON_RED, draw_rect)
+        pygame.draw.rect(surface, (255, 255, 255), draw_rect, 1)

@@ -70,8 +70,8 @@ class Player:
         self.pulses = [p for p in self.pulses if p.active]
 
 
-    def draw(self, surface):
+    def draw(self, surface, camera):
+        draw_rect = camera.apply(self.rect)
         if self.has_key:
-            pygame.draw.circle(surface, NEON_GOLD, self.rect.center, 5)
-            
-        pygame.draw.rect(surface, (0, 255, 255), self.rect, 2)
+            pygame.draw.circle(surface, NEON_GOLD, draw_rect.center, 5)
+        pygame.draw.rect(surface, (0, 255, 255), draw_rect, 2)  

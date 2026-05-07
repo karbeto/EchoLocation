@@ -10,14 +10,28 @@ class Level:
         self.tile_size = 64
         self.key_rect = None 
         self.goal_rect = None 
+        
+        self.width = 0
+        self.height = 0
+        
         self.load_level(path)
 
 
     def load_level(self, path):
         try:
             with open(path, 'r') as f:
-                for row_index, line in enumerate(f):
-                    for col_index, char in enumerate(line.strip()):
+                lines = f.readlines()
+                if not lines:
+                    return
+
+                self.height = len(lines) * self.tile_size
+                max_cols = 0
+                
+                for row_index, line in enumerate(lines):
+                    clean_line = line.strip()
+                    max_cols = max(max_cols, len(clean_line))
+                    
+                    for col_index, char in enumerate(clean_line):
                         x = col_index * self.tile_size
                         y = row_index * self.tile_size
                         
@@ -31,14 +45,17 @@ class Level:
                             self.goal_rect = pygame.Rect(x, y, self.tile_size, self.tile_size)
                         elif char == 'K':
                             self.key_rect = pygame.Rect(x, y, self.tile_size, self.tile_size)
+                
+                self.width = max_cols * self.tile_size
                             
         except FileNotFoundError:
-            print(f"Error: {path} not found. Create a 'levels' folder with 'level1.txt'")
+            print(f"Error: {path} not found.")
+            self.width = 1280
+            self.height = 720
             self.walls.append(pygame.Rect(300, 200, 50, 300))
 
 
     def draw(self, surface):
-
         for wall in self.walls:
             pygame.draw.rect(surface, NEON_CYAN, wall, 2)
             

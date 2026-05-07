@@ -5,6 +5,7 @@ from src.player import Player
 from src.enemy import Enemy
 from src.level import Level
 from src.audio_manager import AudioManager 
+from src.camera import Camera
 
 class EchoLocation:
     
@@ -17,11 +18,12 @@ class EchoLocation:
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont("Arial", 32)
         
-        self.level_files = ['levels/level1.txt', 'levels/level2.txt']
+        self.level_files = ['levels/level1.txt', 'levels/level2.txt', 'levels/level3.txt']
         self.current_level_idx = 0
         self.state = STATE_MENU
         
         self.level = Level(self.level_files[self.current_level_idx])
+        self.camera = Camera(self.level.width, self.level.height)
         
         self.world_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
         self.mask_surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -37,6 +39,7 @@ class EchoLocation:
         ]
         self.mask_surface.fill(BLACK)
         self.player.has_key = False
+        self.camera.update(self.player)
 
 
     def _next_level(self):
@@ -45,6 +48,7 @@ class EchoLocation:
         if self.current_level_idx < len(self.level_files):
             self.audio_manager.play_effect('level_finish') 
             self.level = Level(self.level_files[self.current_level_idx])
+            self.camera = Camera(self.level.width, self.level.height)
             self._reset_game()
             self.state = STATE_PLAYING
             print(f"Advancing to Level {self.current_level_idx + 1}")
@@ -73,6 +77,7 @@ class EchoLocation:
                     if event.key == pygame.K_SPACE:
                         self.current_level_idx = 0
                         self.level = Level(self.level_files[self.current_level_idx])
+                        self.camera = Camera(self.level.width, self.level.height)
                         self._reset_game()
                         self.state = STATE_PLAYING
 
@@ -80,6 +85,7 @@ class EchoLocation:
     def _update_game(self):
         self.player.handle_input()
         self.player.update(self.level.walls)
+        self.camera.update(self.player)
         
         if not self.player.has_key and self.level.key_rect:
             if self.player.rect.colliderect(self.level.key_rect):
@@ -122,14 +128,20 @@ class EchoLocation:
 
     def _draw_playing_screen(self):
         self.world_surface.fill(BLACK)
-        self.level.draw(self.world_surface)
+        
+        for wall in self.level.walls:
+            pygame.draw.rect(self.world_surface, NEON_CYAN, self.camera.apply(wall), 1)
         
         if not self.player.has_key and self.level.key_rect:
-            pygame.draw.rect(self.world_surface, NEON_GOLD, self.level.key_rect, 3)
+            pygame.draw.rect(self.world_surface, NEON_GOLD, self.camera.apply(self.level.key_rect), 3)
+        
+        if self.level.goal_rect:
+            pygame.draw.rect(self.world_surface, (0, 255, 0), self.camera.apply(self.level.goal_rect), 2)
             
         for enemy in self.enemies:
-            enemy.draw(self.world_surface)
-        self.player.draw(self.world_surface)
+            enemy.draw(self.world_surface, self.camera)
+        
+        self.player.draw(self.world_surface, self.camera)
         
         fade_overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
         fade_overlay.set_alpha(VISION_PERSISTENCE) 
@@ -137,7 +149,10 @@ class EchoLocation:
         self.mask_surface.blit(fade_overlay, (0, 0))
         
         for pulse in self.player.pulses:
-            pulse.draw(self.mask_surface)
+            shifted_pos = self.camera.apply_pos(pulse.pos)
+            pygame.draw.circle(self.mask_surface, (255, 255, 255), 
+                             (int(shifted_pos.x), int(shifted_pos.y)), 
+                             int(pulse.radius))
             
         self.screen.blit(self.world_surface, (0, 0))
         self.screen.blit(self.mask_surface, (0, 0), special_flags=pygame.BLEND_MULT)
@@ -180,7 +195,6 @@ class EchoLocation:
             
             pygame.display.flip()
             self.clock.tick(FPS)
-
 
 if __name__ == "__main__":
     game = EchoLocation()
