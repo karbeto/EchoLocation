@@ -6,6 +6,7 @@ from src.enemy import Enemy
 from src.level import Level
 from src.audio_manager import AudioManager 
 from src.camera import Camera
+from src.maze_generator import MazeGenerator # Import our new module
 
 class EchoLocation:
     
@@ -21,7 +22,9 @@ class EchoLocation:
         self.level_files = ['levels/level1.txt', 'levels/level2.txt', 'levels/level3.txt']
         self.current_level_idx = 0
         self.state = STATE_MENU
+        
         self.current_xp = 0
+        self.generator = MazeGenerator(width=29, height=13) 
         
         self.level = Level(self.level_files[self.current_level_idx])
         self.camera = Camera(self.level.width, self.level.height)
@@ -34,7 +37,6 @@ class EchoLocation:
 
     def _reset_game(self):
         self.player = Player(*self.level.player_spawn_pos, self.audio_manager)
-        
         self.player.xp = self.current_xp
         
         self.enemies = [
@@ -45,20 +47,24 @@ class EchoLocation:
         self.player.has_key = False
         self.camera.update(self.player)
 
+
     def _next_level(self):
         self.current_level_idx += 1
         self.current_xp += 10
         
+        self.audio_manager.play_effect('level_finish') 
+        
         if self.current_level_idx < len(self.level_files):
-            self.audio_manager.play_effect('level_finish') 
             self.level = Level(self.level_files[self.current_level_idx])
-            self.camera = Camera(self.level.width, self.level.height)
-            self._reset_game()
-            self.state = STATE_PLAYING
-            print(f"Advancing to Level {self.current_level_idx + 1}")
+            print(f"Advancing to Static Level {self.current_level_idx + 1}")
         else:
-            self.audio_manager.play_effect('level_finish')
-            self.state = STATE_WIN
+            procedural_layout = self.generator.generate(self.current_level_idx + 1)
+            self.level = Level(procedural_layout)
+            print(f"Advancing to Procedural Level {self.current_level_idx + 1}")
+            
+        self.camera = Camera(self.level.width, self.level.height)
+        self._reset_game()
+        self.state = STATE_PLAYING
 
 
     def _handle_events(self):

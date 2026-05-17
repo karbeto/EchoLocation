@@ -1,15 +1,14 @@
 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
 W P..........W..........E....W
-W.WWWWWWWW.W.W.WWWWWWWWWWWW.WW
+W.WWWWWWWW...W.WWWWWWWWWWWW.WW
 W.W........W.W............W..W
 W.W.WWWWWWWW.WWWWWWWWWW.W.WW.W
 W.W.W........E........W.W.W..W
-W.W.W.WWWWWWWWWWWWWWW.W.W.W.WW
 W.W.W.W.....K.......W.W.W.W..W
 W.W.W.W.WWWWWWWWWWW.W.W.W.WW.W
 W...W.W...........W.W.W.W.E..W
 WW.WW.WWWWWWWWWWW.W.W.W.WWWW.W
-W..E........W.....W...W....W.W
+W..E........W.....W........W.W
 W.WWWWWWWWW.W.WWWWWWWWWWWW.W.W
-W........W....W..........G...W
+W........................G...W
 WWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
