@@ -60,17 +60,20 @@ class Player:
                     self.pos.y = self.rect.centery
 
 
-    def update(self, walls):
+    def update(self, level):
+        all_solids = level.walls + level.chime_walls
+
         self.pos.x += self.vel.x
         self.rect.centerx = int(self.pos.x)
-        self._handle_collision(walls, 'x')
+        self._handle_collision(all_solids, 'x')
 
         self.pos.y += self.vel.y
         self.rect.centery = int(self.pos.y)
-        self._handle_collision(walls, 'y')
+        self._handle_collision(all_solids, 'y')
         
         for pulse in self.pulses:
-            pulse.update()
+            pulse.update(level.chime_walls, self.audio_manager)
+
         self.pulses = [p for p in self.pulses if p.active]
 
 

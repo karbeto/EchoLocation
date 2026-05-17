@@ -108,7 +108,7 @@ class EchoLocation:
 
     def _update_game(self):
         self.player.handle_input()
-        self.player.update(self.level.walls)
+        self.player.update(self.level)
         self.camera.update(self.player)
         
         if not self.player.has_key and self.level.key_rect:

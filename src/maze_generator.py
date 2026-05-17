@@ -55,7 +55,26 @@ class MazeGenerator:
         key_x, key_y = open_cells.pop(int(len(open_cells) * 0.75))
         grid[key_y][key_x] = 'K'
 
+        eligible_wall_cells = []
         safe_zone_radius = 5
+
+        for y in range(1, self.height - 1):
+            for x in range(1, self.width - 1):
+                if grid[y][x] == 'W':
+                    if (abs(x - player_x) + abs(y - player_y)) > safe_zone_radius:
+                        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                            ny, nx = y + dy, x + dx
+                            if 0 <= ny < self.height and 0 <= nx < self.width:
+                                if grid[ny][nx] == '.':
+                                    eligible_wall_cells.append((x, y))
+                                    break
+
+        random.shuffle(eligible_wall_cells)
+        num_chime_walls = int(len(eligible_wall_cells) * 0.11)
+        for _ in range(min(num_chime_walls, len(eligible_wall_cells))):
+            cx, cy = eligible_wall_cells.pop()
+            grid[cy][cx] = 'C'
+
         eligible_enemy_cells = [
             (x, y) for (x, y) in open_cells 
             if (abs(x - player_x) + abs(y - player_y)) > safe_zone_radius

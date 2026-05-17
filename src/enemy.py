@@ -34,9 +34,21 @@ class Enemy:
             self.heard_pulse = False
 
         for pulse in pulses:
-            dist = self.pos.distance_to(pulse.pos)
-            if dist < pulse.radius:
-                self.target_pos = pygame.math.Vector2(pulse.pos.x, pulse.pos.y)
+            dist_to_pulse = self.pos.distance_to(pulse.pos)
+            
+            if dist_to_pulse < pulse.radius:
+                chosen_target = pygame.math.Vector2(pulse.pos.x, pulse.pos.y)
+                closest_dist = dist_to_pulse
+                
+                for hazard_coord in pulse.triggered_hazards:
+                    hazard_pos = pygame.math.Vector2(hazard_coord[0] + 32, hazard_coord[1] + 32)
+                    dist_to_hazard = self.pos.distance_to(hazard_pos)
+                    
+                    if dist_to_hazard < closest_dist:
+                        closest_dist = dist_to_hazard
+                        chosen_target = hazard_pos
+                
+                self.target_pos = chosen_target
                 self.is_chasing = True
                 self.chase_timer = 180  
                 
@@ -47,6 +59,7 @@ class Enemy:
 
     def update(self, walls, player_pos):
         dist_to_player = self.pos.distance_to(player_pos)
+        
         if dist_to_player < 120: 
             self.target_pos = pygame.math.Vector2(player_pos.x, player_pos.y)
             self.is_chasing = True

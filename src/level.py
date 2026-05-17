@@ -5,6 +5,7 @@ class Level:
     
     def __init__(self, path_or_layout):
         self.walls = []
+        self.chime_walls = []
         self.enemies_spawn_pos = []
         self.player_spawn_pos = [100, 100]
         self.tile_size = 64
@@ -37,6 +38,7 @@ class Level:
 
     def parse_layout(self, lines):
         self.walls.clear()
+        self.chime_walls.clear()
         self.enemies_spawn_pos.clear()
         
         self.height = len(lines) * self.tile_size
@@ -52,6 +54,8 @@ class Level:
                 
                 if char == 'W':
                     self.walls.append(pygame.Rect(x, y, self.tile_size, self.tile_size))
+                elif char == 'C':
+                    self.chime_walls.append(pygame.Rect(x, y, self.tile_size, self.tile_size))
                 elif char == 'P':
                     self.player_spawn_pos = [x + self.tile_size // 2, y + self.tile_size // 2]
                 elif char == 'E':
@@ -62,6 +66,7 @@ class Level:
                     self.key_rect = pygame.Rect(x, y, self.tile_size, self.tile_size)
         
         self.width = max_cols * self.tile_size
+
 
     def draw(self, surface):
         for wall in self.walls:
