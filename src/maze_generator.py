@@ -1,6 +1,7 @@
 import random
 
 class MazeGenerator:
+    
     def __init__(self, width=25, height=13):
         self.width = width if width % 2 != 0 else width + 1
         self.height = height if height % 2 != 0 else height + 1
@@ -28,12 +29,12 @@ class MazeGenerator:
 
         carve_paths(1, 1)
 
-        # 2. BRAIDING STEP: Remove extra walls to create alternate loops and flanking paths
+        # Braiding Step (Breaking extra inner walls)
         for y in range(2, self.height - 2):
             for x in range(2, self.width - 2):
                 if grid[y][x] == 'W':
                     if (grid[y][x-1] == '.' and grid[y][x+1] == '.') or (grid[y-1][x] == '.' and grid[y+1][x] == '.'):
-                        if random.random() < 0.25: 
+                        if random.random() < 0.25:
                             grid[y][x] = '.'
 
         open_cells = []
@@ -54,11 +55,20 @@ class MazeGenerator:
         key_x, key_y = open_cells.pop(int(len(open_cells) * 0.75))
         grid[key_y][key_x] = 'K'
 
+        safe_zone_radius = 5
+        eligible_enemy_cells = [
+            (x, y) for (x, y) in open_cells 
+            if (abs(x - player_x) + abs(y - player_y)) > safe_zone_radius
+        ]
+
+        if not eligible_enemy_cells:
+            eligible_enemy_cells = open_cells
+
         num_enemies = min(5, 2 + (level_num - 4) // 2)
-        random.shuffle(open_cells)
+        random.shuffle(eligible_enemy_cells)
         
-        for _ in range(min(num_enemies, len(open_cells))):
-            ex, ey = open_cells.pop()
+        for _ in range(min(num_enemies, len(eligible_enemy_cells))):
+            ex, ey = eligible_enemy_cells.pop()
             grid[ey][ex] = 'E'
 
         return ["".join(row) for row in grid]
