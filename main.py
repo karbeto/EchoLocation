@@ -21,6 +21,7 @@ class EchoLocation:
         self.level_files = ['levels/level1.txt', 'levels/level2.txt', 'levels/level3.txt']
         self.current_level_idx = 0
         self.state = STATE_MENU
+        self.current_xp = 0
         
         self.level = Level(self.level_files[self.current_level_idx])
         self.camera = Camera(self.level.width, self.level.height)
@@ -33,6 +34,9 @@ class EchoLocation:
 
     def _reset_game(self):
         self.player = Player(*self.level.player_spawn_pos, self.audio_manager)
+        
+        self.player.xp = self.current_xp
+        
         self.enemies = [
             Enemy(pos[0], pos[1], self.audio_manager) 
             for pos in self.level.enemies_spawn_pos
@@ -41,9 +45,9 @@ class EchoLocation:
         self.player.has_key = False
         self.camera.update(self.player)
 
-
     def _next_level(self):
         self.current_level_idx += 1
+        self.current_xp += 10
         
         if self.current_level_idx < len(self.level_files):
             self.audio_manager.play_effect('level_finish') 
@@ -76,6 +80,7 @@ class EchoLocation:
                 elif self.state == STATE_WIN:
                     if event.key == pygame.K_SPACE:
                         self.current_level_idx = 0
+                        self.current_xp = 0 
                         self.level = Level(self.level_files[self.current_level_idx])
                         self.camera = Camera(self.level.width, self.level.height)
                         self._reset_game()
@@ -169,7 +174,10 @@ class EchoLocation:
         pygame.draw.rect(self.screen, NEON_CYAN, (SCREEN_WIDTH//2 - 100, SCREEN_HEIGHT - 40, bar_width * progress, 10))
         
         lvl_text = self.font.render(f"Level {self.current_level_idx + 1}", True, WHITE)
+        xp_text = self.font.render(f"XP: {self.player.xp}", True, WHITE)
+        
         self.screen.blit(lvl_text, (20, SCREEN_HEIGHT - 50))
+        self.screen.blit(xp_text, (20, SCREEN_HEIGHT - 90))
         
         if self.player.has_key:
             key_text = self.font.render("KEY: ACQUIRED", True, NEON_GOLD)
@@ -195,6 +203,7 @@ class EchoLocation:
             
             pygame.display.flip()
             self.clock.tick(FPS)
+
 
 if __name__ == "__main__":
     game = EchoLocation()

@@ -11,6 +11,7 @@ class Player:
         self.rect = pygame.Rect(x-10, y-10, 20, 20)
         self.last_pulse_time = 0
         self.has_key = False
+        self.xp = 0
         
         self.audio_manager = audio_manager
         self.footstep_delay = 350
