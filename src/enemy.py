@@ -30,13 +30,14 @@ class Enemy:
 
 
     def listen(self, pulses):
-        if not pulses:
-            self.heard_pulse = False
+        currently_hearing_something = False
 
         for pulse in pulses:
             dist_to_pulse = self.pos.distance_to(pulse.pos)
             
             if dist_to_pulse < pulse.radius:
+                currently_hearing_something = True
+                
                 chosen_target = pygame.math.Vector2(pulse.pos.x, pulse.pos.y)
                 closest_dist = dist_to_pulse
                 
@@ -51,10 +52,13 @@ class Enemy:
                 self.target_pos = chosen_target
                 self.is_chasing = True
                 self.chase_timer = 180  
-                
-                if not self.heard_pulse:
-                    self.audio_manager.play_effect('enemy', volume=0.6)
-                    self.heard_pulse = True
+        
+        if currently_hearing_something:
+            if not self.heard_pulse:
+                self.audio_manager.play_effect('enemy', volume=0.5)
+                self.heard_pulse = True
+        else:
+            self.heard_pulse = False
 
 
     def update(self, walls, player_pos):

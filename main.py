@@ -14,6 +14,7 @@ from src.game_renderer import GameRenderer
 class EchoLocation:
     
     def __init__(self):
+        pygame.mixer.pre_init(44100, -16, 2, 1024)
         pygame.init()
         self.audio_manager = AudioManager() 
         
@@ -38,16 +39,26 @@ class EchoLocation:
 
 
     def _reset_game(self):
+        pygame.mixer.stop()
+        
         dynamic_radius = PULSE_MAX_RADIUS * self.shop_manager.get_radius_modifier()
         dynamic_cooldown = PULSE_COOLDOWN * self.shop_manager.get_cooldown_modifier()
         
         self.player = Player(*self.level.player_spawn_pos, self.audio_manager, dynamic_radius, dynamic_cooldown)
         self.player.xp = self.current_xp
         
+        self.player.pulses = []
+        
         self.enemies = [
             Enemy(pos[0], pos[1], self.audio_manager) 
             for pos in self.level.enemies_spawn_pos
         ]
+        
+        for enemy in self.enemies:
+            enemy.heard_pulse = False
+            enemy.target_pos = None
+            enemy.is_chasing = False
+            
         self.game_renderer.clear_mask()
         self.player.has_key = False
         self.camera.update(self.player)
@@ -60,9 +71,11 @@ class EchoLocation:
         
         if self.current_level_idx < len(self.level_files):
             self.level = Level(self.level_files[self.current_level_idx])
+            self._reset_game()
         else:
             procedural_layout = self.generator.generate(self.current_level_idx + 1)
             self.level = Level(procedural_layout)
+            self._reset_game()
             
         self.camera = Camera(self.level.width, self.level.height)
         self._reset_game()

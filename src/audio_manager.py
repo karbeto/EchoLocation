@@ -1,20 +1,24 @@
 import pygame
 import os
 
-pygame.mixer.pre_init(44100, -16, 2, 512)
+pygame.mixer.pre_init(44100, -16, 2, 1024)
 
 class AudioManager:
     
     def __init__(self):
         self.sounds = {}
         self.base_path = os.path.join("assets", "audio")
+        
+        pygame.mixer.set_num_channels(16)
+        
+        self.footstep_channel = pygame.mixer.Channel(0)
+        self.pulse_channel = pygame.mixer.Channel(1)
+        
         self.load_assets()
 
 
     def load_assets(self):
-
         try:
-  
             self.sounds['pulse'] = pygame.mixer.Sound(os.path.join(self.base_path, "pulse.wav"))
             self.sounds['footsteps'] = pygame.mixer.Sound(os.path.join(self.base_path, "footsteps.wav"))
             self.sounds['enemy'] = pygame.mixer.Sound(os.path.join(self.base_path, "enemy.flac"))
@@ -28,12 +32,19 @@ class AudioManager:
 
 
     def play_pulse(self, distance_factor):
-        volume = max(0.1, 1.0 - (distance_factor / 500))
-        self.sounds['pulse'].set_volume(volume)
-        self.sounds['pulse'].play()
+        if 'pulse' in self.sounds:
+            volume = max(0.1, 1.0 - (distance_factor / 500))
+            self.sounds['pulse'].set_volume(volume)
+            self.pulse_channel.stop()
+            self.pulse_channel.play(self.sounds['pulse'])
 
 
     def play_effect(self, sound_name, volume=1.0):
         if sound_name in self.sounds:
-            self.sounds[sound_name].set_volume(volume)
-            self.sounds[sound_name].play()
+            if sound_name == 'footsteps':
+                self.sounds['footsteps'].set_volume(volume)
+                if not self.footstep_channel.get_busy():
+                    self.footstep_channel.play(self.sounds['footsteps'])
+            else:
+                self.sounds[sound_name].set_volume(volume)
+                self.sounds[sound_name].play()
