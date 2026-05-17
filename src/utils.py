@@ -36,7 +36,7 @@ class Pulse:
             if distance_squared <= (self.radius * self.radius):
                 self.triggered_hazards.add(hazard_id)
                 
-                audio_manager.play_effect('key_found', volume=0.5) 
+                audio_manager.play_effect('chime_wall_hit', volume=0.5) 
             
 
     def draw(self, surface):

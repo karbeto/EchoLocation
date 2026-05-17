@@ -20,6 +20,7 @@ class AudioManager:
             self.sounds['enemy'] = pygame.mixer.Sound(os.path.join(self.base_path, "enemy.flac"))
             self.sounds['key_found'] = pygame.mixer.Sound(os.path.join(self.base_path, "key_found.flac"))
             self.sounds['level_finish'] = pygame.mixer.Sound(os.path.join(self.base_path, "level_finish.wav"))
+            self.sounds['chime_wall_hit'] = pygame.mixer.Sound(os.path.join(self.base_path, "chime_wall_hit.wav"))
             
             print("Audio assets loaded successfully.")
         except pygame.error as e:
