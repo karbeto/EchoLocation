@@ -39,7 +39,10 @@ class EchoLocation:
 
 
     def _reset_game(self):
-        pygame.mixer.stop()
+        self.audio_manager.footstep_channel.stop()
+        self.audio_manager.pulse_channel.stop()
+        if 'enemy' in self.audio_manager.sounds:
+            self.audio_manager.sounds['enemy'].stop()
         
         dynamic_radius = PULSE_MAX_RADIUS * self.shop_manager.get_radius_modifier()
         dynamic_cooldown = PULSE_COOLDOWN * self.shop_manager.get_cooldown_modifier()
@@ -137,6 +140,8 @@ class EchoLocation:
         
         if self.level.goal_rect and self.player.rect.colliderect(self.level.goal_rect):
             if self.player.has_key:
+                self.audio_manager.play_effect('level_finish')
+                
                 self._next_level()
 
 

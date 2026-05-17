@@ -34,7 +34,10 @@ class GameRenderer:
         player.draw(self.world_surface, camera)
         
         fade_overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-        fade_overlay.set_alpha(VISION_PERSISTENCE) 
+        
+        decay_rate = max(2, min(VISION_PERSISTENCE, 6))
+        fade_overlay.set_alpha(decay_rate) 
+        
         fade_overlay.fill(BLACK)
         self.mask_surface.blit(fade_overlay, (0, 0))
         

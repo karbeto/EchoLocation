@@ -70,7 +70,7 @@ class MazeGenerator:
                                     break
 
         random.shuffle(eligible_wall_cells)
-        num_chime_walls = int(len(eligible_wall_cells) * 0.11)
+        num_chime_walls = int(len(eligible_wall_cells) * 0.9)
         for _ in range(min(num_chime_walls, len(eligible_wall_cells))):
             cx, cy = eligible_wall_cells.pop()
             grid[cy][cx] = 'C'

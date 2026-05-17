@@ -28,7 +28,18 @@ class Player:
         self.vel.y = keys[pygame.K_s] - keys[pygame.K_w]
         
         if self.vel.length() > 0:
-            self.vel = self.vel.normalize() * PLAYER_SPEED
+            current_speed = PLAYER_SPEED
+            
+            for pulse in self.pulses:
+                dist_to_wave = self.pos.distance_to(pulse.pos)
+                
+                tolerance = 12
+                
+                if abs(dist_to_wave - pulse.radius) <= tolerance:
+                    current_speed = PLAYER_SPEED * 1.5
+                    break
+
+            self.vel = self.vel.normalize() * current_speed
             
             current_time = pygame.time.get_ticks()
             if current_time - self.last_footstep_time > self.footstep_delay:
