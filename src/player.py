@@ -1,10 +1,10 @@
 import pygame
-from .settings import PLAYER_SPEED, PULSE_COOLDOWN, PULSE_MAX_RADIUS, NEON_GOLD
+from .settings import PLAYER_SPEED, NEON_GOLD
 from .utils import Pulse
 
 class Player:
     
-    def __init__(self, x, y, audio_manager):
+    def __init__(self, x, y, audio_manager, max_radius, cooldown):
         self.pos = pygame.math.Vector2(x, y)
         self.vel = pygame.math.Vector2(0, 0)
         self.pulses = []
@@ -12,6 +12,9 @@ class Player:
         self.last_pulse_time = 0
         self.has_key = False
         self.xp = 0
+        
+        self.max_radius = max_radius
+        self.cooldown = cooldown
         
         self.audio_manager = audio_manager
         self.footstep_delay = 350
@@ -33,14 +36,14 @@ class Player:
                 self.last_footstep_time = current_time
         
         current_time = pygame.time.get_ticks()
-        if keys[pygame.K_SPACE] and current_time - self.last_pulse_time > PULSE_COOLDOWN:
+        if keys[pygame.K_SPACE] and current_time - self.last_pulse_time > self.cooldown:
             self.emit_pulse()
             self.last_pulse_time = current_time
 
 
     def emit_pulse(self):
         if len(self.pulses) < 3: 
-            self.pulses.append(Pulse(self.pos.x, self.pos.y, PULSE_MAX_RADIUS))
+            self.pulses.append(Pulse(self.pos.x, self.pos.y, self.max_radius))
             self.audio_manager.play_pulse(0)
           
           
@@ -75,4 +78,4 @@ class Player:
         draw_rect = camera.apply(self.rect)
         if self.has_key:
             pygame.draw.circle(surface, NEON_GOLD, draw_rect.center, 5)
-        pygame.draw.rect(surface, (0, 255, 255), draw_rect, 2)  
+        pygame.draw.rect(surface, (0, 255, 255), draw_rect, 2)

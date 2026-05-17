@@ -11,6 +11,7 @@ STATE_MENU = 'menu'
 STATE_PLAYING = 'playing'
 STATE_GAMEOVER = 'gameover'
 STATE_WIN = 'win'
+STATE_SHOP = 'shop'
 
 
 PLAYER_SPEED = 5

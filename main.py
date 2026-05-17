@@ -6,7 +6,8 @@ from src.enemy import Enemy
 from src.level import Level
 from src.audio_manager import AudioManager 
 from src.camera import Camera
-from src.maze_generator import MazeGenerator # Import our new module
+from src.maze_generator import MazeGenerator
+from src.shop import ShopManager
 
 class EchoLocation:
     
@@ -18,13 +19,16 @@ class EchoLocation:
         pygame.display.set_caption(TITLE)
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont("Arial", 32)
+        self.shop_font = pygame.font.SysFont("Arial", 24)
         
         self.level_files = ['levels/level1.txt', 'levels/level2.txt', 'levels/level3.txt']
         self.current_level_idx = 0
         self.state = STATE_MENU
         
         self.current_xp = 0
-        self.generator = MazeGenerator(width=29, height=13) 
+        self.generator = MazeGenerator(width=25, height=13) 
+        
+        self.shop_manager = ShopManager()
         
         self.level = Level(self.level_files[self.current_level_idx])
         self.camera = Camera(self.level.width, self.level.height)
@@ -36,7 +40,10 @@ class EchoLocation:
 
 
     def _reset_game(self):
-        self.player = Player(*self.level.player_spawn_pos, self.audio_manager)
+        dynamic_radius = PULSE_MAX_RADIUS * self.shop_manager.get_radius_modifier()
+        dynamic_cooldown = PULSE_COOLDOWN * self.shop_manager.get_cooldown_modifier()
+        
+        self.player = Player(*self.level.player_spawn_pos, self.audio_manager, dynamic_radius, dynamic_cooldown)
         self.player.xp = self.current_xp
         
         self.enemies = [
@@ -91,6 +98,26 @@ class EchoLocation:
                         self.camera = Camera(self.level.width, self.level.height)
                         self._reset_game()
                         self.state = STATE_PLAYING
+
+                elif self.state == STATE_PLAYING:
+                    if event.key == pygame.K_e:
+                        self.state = STATE_SHOP
+                        
+                elif self.state == STATE_SHOP:
+                    if event.key == pygame.K_e:
+                        self.state = STATE_PLAYING
+                    
+                    elif event.key == pygame.K_1:
+                        success, self.current_xp = self.shop_manager.try_upgrade_radius(self.current_xp)
+                        if success:
+                            self.player.xp = self.current_xp
+                            self.player.max_radius = PULSE_MAX_RADIUS * self.shop_manager.get_radius_modifier()
+                            
+                    elif event.key == pygame.K_2:
+                        success, self.current_xp = self.shop_manager.try_upgrade_cooldown(self.current_xp)
+                        if success:
+                            self.player.xp = self.current_xp
+                            self.player.cooldown = PULSE_COOLDOWN * self.shop_manager.get_cooldown_modifier()
 
 
     def _update_game(self):
@@ -170,20 +197,52 @@ class EchoLocation:
         
         self._draw_ui()
 
+    def _draw_shop_overlay(self):
+        self._draw_playing_screen()
+        
+        shop_panel = pygame.Surface((460, 260))
+        shop_panel.fill((10, 15, 20))
+        pygame.draw.rect(shop_panel, NEON_CYAN, (0, 0, 460, 260), 2)
+        
+        cost_r = self.shop_manager.get_upgrade_cost(self.shop_manager.radius_level)
+        cost_c = self.shop_manager.get_upgrade_cost(self.shop_manager.cooldown_level)
+        
+        lvl_r = f"Lvl {self.shop_manager.radius_level}/5" if self.shop_manager.radius_level < 5 else "MAX"
+        lvl_c = f"Lvl {self.shop_manager.cooldown_level}/5" if self.shop_manager.cooldown_level < 5 else "MAX"
+        
+        title_txt = self.font.render("ECHO MODIFICATIONS", True, NEON_CYAN)
+        xp_txt = self.shop_font.render(f"Available XP Balance: {self.current_xp}", True, WHITE)
+        
+        opt1_txt = self.shop_font.render(f"[1] Sonar Amplifier ({lvl_r}) - Cost: {cost_r} XP", True, NEON_GOLD if self.shop_manager.radius_level < 5 else (100,100,100))
+        opt2_txt = self.shop_font.render(f"[2] Frequency Booster ({lvl_c}) - Cost: {cost_c} XP", True, NEON_GOLD if self.shop_manager.cooldown_level < 5 else (100,100,100))
+        exit_txt = self.shop_font.render("[E] Resume Mission Tracker", True, WHITE)
+        
+        shop_panel.blit(title_txt, (30, 20))
+        shop_panel.blit(xp_txt, (30, 70))
+        shop_panel.blit(opt1_txt, (30, 120))
+        shop_panel.blit(opt2_txt, (30, 160))
+        shop_panel.blit(exit_txt, (30, 210))
+        
+        panel_x = (SCREEN_WIDTH - 460) // 2
+        panel_y = (SCREEN_HEIGHT - 260) // 2
+        self.screen.blit(shop_panel, (panel_x, panel_y))
+
 
     def _draw_ui(self):
         current_time = pygame.time.get_ticks()
-        progress = min(1.0, (current_time - self.player.last_pulse_time) / PULSE_COOLDOWN)
+        progress = min(1.0, (current_time - self.player.last_pulse_time) / self.player.cooldown)
         bar_width = 200
         
         pygame.draw.rect(self.screen, (50, 50, 50), (SCREEN_WIDTH//2 - 100, SCREEN_HEIGHT - 40, bar_width, 10))
         pygame.draw.rect(self.screen, NEON_CYAN, (SCREEN_WIDTH//2 - 100, SCREEN_HEIGHT - 40, bar_width * progress, 10))
         
         lvl_text = self.font.render(f"Level {self.current_level_idx + 1}", True, WHITE)
-        xp_text = self.font.render(f"XP: {self.player.xp}", True, WHITE)
+        xp_text = self.font.render(f"XP: {self.current_xp}", True, WHITE)
+        shop_hint = self.shop_font.render("[E] Upgrades", True, (150, 150, 150))
         
         self.screen.blit(lvl_text, (20, SCREEN_HEIGHT - 50))
         self.screen.blit(xp_text, (20, SCREEN_HEIGHT - 90))
+        self.screen.blit(shop_hint, (20, 20))
         
         if self.player.has_key:
             key_text = self.font.render("KEY: ACQUIRED", True, NEON_GOLD)
@@ -200,6 +259,8 @@ class EchoLocation:
             if self.state == STATE_PLAYING:
                 self._update_game()
                 self._draw_playing_screen()
+            elif self.state == STATE_SHOP:
+                self._draw_shop_overlay()
             elif self.state == STATE_MENU:
                 self._draw_menu_screen()
             elif self.state == STATE_GAMEOVER:
