@@ -9,8 +9,10 @@
 * **Acoustic Radar Masking:** The entire world is covered by a hardware-accelerated dark mask using custom alpha-blending math (`pygame.BLEND_MULT`). Emitting a sound wave physically burns visibility holes into the dark, revealing walls, objects, and threats frame-by-frame.
 * **Echo Trails (Visual Memory System):** Illuminated structural layouts do not instantly disappear. Walls fade through stepped alpha intervals, leaving a faint, decaying cyan "ghost trace" radar outline that stays visible for several seconds to allow for active path planning.
 * **Sonic Wave-Surfing Mechanic:** Timing is everything. Stepping exactly onto the expanding crest of your own sound pulse grants a snappy **50% momentum velocity boost**. Master the rhythm to sprint through narrow corridors and escape tight corners.
-* **State-Throttled Enemy AI:** "Hearer" predators track targets using physical sound-vector listening. The code enforces state-guard overrides and audio cooldown thresholds to make sure enemies hunt seamlessly across map boundaries without overloading audio buffers.
+* **Acoustic Chime Walls:** Interacting with specialized Chime Walls causes them to ripple and emit localized ambient sound vectors when struck by a sonar wave. This provides strategic auditory landmarks or distraction points to misdirect hunting predators.
+* **State-Throttled Enemy:** "Hearer" predators track targets using physical sound-vector listening. The code enforces state-guard overrides and audio cooldown thresholds to make sure enemies hunt seamlessly across map boundaries without overloading audio buffers.
 * **Data-Driven Architecture:** Maps are read, tokenized, and parsed directly from simple plaintext matrix configurations (`.txt` files), supporting complex custom layouts, mechanical chime walls, and progressive layouts.
+* **Procedural Maze Generation:** Levels can transition into infinitely scaling, runtime-generated structural challenges via a recursive backtracker matrix algorithm, augmenting the static file parser for endless replayability.
 
 ---
 
@@ -89,6 +91,7 @@ echo-location/
 You can engineer custom level profiles directly inside the `levels/` folder by modifying or creating `.txt` matrices. Use the following design tokens to construct your grid map:
 
 * `W` — **Solid Wall** (Impassable blocking collider)
+* `C` — **Chime Wall** (Acoustic resonance barrier that rings when pinged)
 * `P` — **Player Spawn Point** (Initial player frame placement coordinates)
 * `E` — **Enemy Spawn Point** (Initial Hearer entity patrol placement coordinates)
 * `K` — **The Neon Gold Key** (Required to clear exit validation flags)
