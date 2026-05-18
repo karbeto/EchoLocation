@@ -11,7 +11,7 @@ class Enemy:
         
         self.audio_manager = audio_manager
         self.heard_pulse = False
-        
+        self.last_growl_time = 0  
         self.target_pos = None
         self.is_chasing = False
         self.chase_timer = 0 
@@ -54,8 +54,10 @@ class Enemy:
                 self.chase_timer = 180  
         
         if currently_hearing_something:
-            if not self.heard_pulse:
+            current_time = pygame.time.get_ticks()
+            if not self.heard_pulse and (current_time - self.last_growl_time > 1500):
                 self.audio_manager.play_effect('enemy', volume=0.5)
+                self.last_growl_time = current_time
                 self.heard_pulse = True
         else:
             self.heard_pulse = False
