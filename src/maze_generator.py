@@ -11,7 +11,6 @@ class MazeGenerator:
         grid = [['W' for _ in range(self.width)] for _ in range(self.height)]
         visited = set()
 
-
         def carve_paths(cx, cy):
             visited.add((cx, cy))
             grid[cy][cx] = '.'
@@ -70,10 +69,23 @@ class MazeGenerator:
                                     break
 
         random.shuffle(eligible_wall_cells)
-        num_chime_walls = int(len(eligible_wall_cells) * 0.9)
-        for _ in range(min(num_chime_walls, len(eligible_wall_cells))):
+        
+        spawn_ratio = min(0.35, 0.15 + (level_num * 0.03))
+        num_chime_walls = int(len(eligible_wall_cells) * spawn_ratio)
+        
+        chimes_placed = 0
+        while eligible_wall_cells and chimes_placed < num_chime_walls:
             cx, cy = eligible_wall_cells.pop()
-            grid[cy][cx] = 'C'
+            
+            too_close = False
+            for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                if grid[cy + dy][cx + dx] == 'C':
+                    too_close = True
+                    break
+            
+            if not too_close:
+                grid[cy][cx] = 'C'
+                chimes_placed += 1
 
         eligible_enemy_cells = [
             (x, y) for (x, y) in open_cells 
