@@ -1,74 +1,98 @@
-# EchoLocation
+# 🦇 EchoLocation
 
-**EchoLocation** is a minimalistic 2D top-down horror-stealth game built with Python and Pygame. You are trapped in total darkness and must navigate using sound pulses to reveal your environment, avoid "Hearer" predators, and find the key to escape.
+**EchoLocation** is a high-performance, minimalistic 2D top-down horror-stealth game built with Python and Pygame. Trapped in a world of absolute pitch blackness, you possess no natural sight. You must rely entirely on acoustic sonar rings to map out your surroundings, avoid lethal blind predators, and hunt for the path to safety.
 
-## 🛠 Features
+---
 
-*   **Acoustic Navigation:** The world is pitch black. You must send out pulses that briefly reveal walls, enemies, and objectives.
-*   **State-Based Predator AI:** Enemies (Hearers) patrol the darkness and will pivot to hunting mode if they "hear" your pulses or see you within a specific radius.
-*   **Data-Driven Level Design:** Levels are parsed from simple `.txt` files, allowing for easy expansion and map creation.
-*   **Objective-Based Gameplay:** Players must locate a hidden key before the exit gate (Goal) will unlock.
+## 🛠 Advanced Features
 
-## 🚀 Getting Started
+* **Acoustic Radar Masking:** The entire world is covered by a hardware-accelerated dark mask using custom alpha-blending math (`pygame.BLEND_MULT`). Emitting a sound wave physically burns visibility holes into the dark, revealing walls, objects, and threats frame-by-frame.
+* **Echo Trails (Visual Memory System):** Illuminated structural layouts do not instantly disappear. Walls fade through stepped alpha intervals, leaving a faint, decaying cyan "ghost trace" radar outline that stays visible for several seconds to allow for active path planning.
+* **Sonic Wave-Surfing Mechanic:** Timing is everything. Stepping exactly onto the expanding crest of your own sound pulse grants a snappy **50% momentum velocity boost**. Master the rhythm to sprint through narrow corridors and escape tight corners.
+* **State-Throttled Enemy AI:** "Hearer" predators track targets using physical sound-vector listening. The code enforces state-guard overrides and audio cooldown thresholds to make sure enemies hunt seamlessly across map boundaries without overloading audio buffers.
+* **Data-Driven Architecture:** Maps are read, tokenized, and parsed directly from simple plaintext matrix configurations (`.txt` files), supporting complex custom layouts, mechanical chime walls, and progressive layouts.
 
-### Prerequisites
-*   Python 3.10 or higher
-*   Pygame library
+---
 
-### Installation
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/karbeto/EchoLocation.git
-    cd echo-location
+## 🎮 Game Controls & Objectives
 
-2. **Install dependencies:**
-    ```bash
-    pip install pygame
+### Controls
+* **`SPACEBAR`** — Emit Sonar Pulse (Reveals the maze but alerts nearby Hearers to your origin coordinates)
+* **`W` / `A` / `S` / `D`** — Move (Stepping in sync with an active pulse edge triggers the **Sonic Wave-Surf Boost**)
 
-### Running the Game
+### The Mission Vector
+1. **Ping the Dark:** Send out echo waves to read the architecture around you.
+2. **Secure the Objective:** Navigate the maze to locate the **Neon Gold Key**.
+3. **Ride the Wave:** Dodge or outrun the blind predators patrolling the corridors.
+4. **Breach the Perimeter:** Reach the **Green Exit Gate** with the key in your inventory to advance to the next floor.
 
-Launch the game by executing the `main.py` file from the root directory:
-    ```bash
-    python main.py
+---
 
+## 🚀 Installation & Launch
 
-# 🎮 How to Play
+### System Requirements
+* Python 3.10 or higher
+* Pygame 2.x
 
-* **Pulse (Echolocation)**: Press the Spacebar to emit a sound pulse. This reveals your surroundings but alerts nearby enemies to your exact position
-* **Move:** Use the Arrow Keys or WASD to navigate through the darkness.
+### Deployment Steps
+1. **Clone the repository architecture:**
+   ```bash
+   git clone https://github.com/karbeto/EchoLocation.git
+   cd echo-location
+   ```
 
-* **The Objective:**
+2. **Install the dependencies:**
+   ```bash
+   pip install pygame
+   ```
 
-1. Explore the map to find the **Gold Key (K).**
-2. Once acquired, the UI will update to **"KEY: ACQUIRED".**
-3. Reach the **Exit (G)** to advance to the next level.
-**Avoid the Hearers:** If an enemy touches you, the game is over. Watch their movement patterns to sneak past.
+3. **Initialize the engine loop:**
+   ```bash
+   python main.py
+   ```
 
+---
 
-# 📁 Project Structure
-    echo-location/
-    ├── main.py            # Entry point and Game State Manager
-    ├── levels/            # Directory containing .txt map files
-    │   ├── level1.txt
-    │   └── level2.txt
-    └── src/               # Source code
-        ├── settings.py    # Game constants (colors, speeds, states)
-        ├── player.py      # Player logic and pulse mechanics
-        ├── enemy.py       # Predator AI and FSM (Finite State Machine)
-        └── level.py       # Map parsing and rendering logic
+## 📁 Project Structure
 
+```text
+echo-location/
+├── main.py              # Engine core, clock ticking, event distribution, and app state loop
+├── requirements.txt     # List of external Python dependencies (pygame)
+├── assets/
+│   └── audio/           # Sound repository (.wav and .flac channels)
+│
+├── levels/              # Plaintext structural layout configurations
+│   ├── level1.txt       
+│   ├── level2.txt       
+│   └── level3.txt  
+│  
+└── src/               
+    ├── __init__.py      # Marks directory as a regular Python package
+    ├── audio_manager.py # Controls multi-channel mixers, sound effects, and spatial volumes
+    ├── camera.py        # Vector translation offset tracking relative to player position
+    ├── enemy.py         # Hearing state machines, listening math, and pathing velocity
+    ├── game_renderer.py # Blend-multiplied surface masks, fade overlays, and layer blitting
+    ├── level.py         # Map layout parsing, wall group grouping, and tile coordinate maps
+    ├── maze_generator.py# Procedural layout generator for continuous/infinite level mapping
+    ├── player.py        # Physics mechanics, input tracking, and Soundwave emission vectors
+    ├── settings.py      # Core architectural constants (Colors, FPS, Audio configurations)
+    ├── shop.py          # Upgrade modifier states (Radius improvements, cooldown scaling)
+    ├── ui_renderer.py   # HUD layers, overlay drawings for menus, shop windows, and victory frames
+    └── utils.py         # Auxiliary calculation assets (Pulse tracking classes, dimensions)
+```
 
-# 📝 Level Creation
-You can design your own levels in the **levels/** folder using the following characters:
+---
 
-**W**: Wall
+## 📝 Custom Level Blueprint Creation
 
-**P**: Player Spawn
+You can engineer custom level profiles directly inside the `levels/` folder by modifying or creating `.txt` matrices. Use the following design tokens to construct your grid map:
 
-**E**: Enemy Spawn
+* `W` — **Solid Wall** (Impassable blocking collider)
+* `P` — **Player Spawn Point** (Initial player frame placement coordinates)
+* `E` — **Enemy Spawn Point** (Initial Hearer entity patrol placement coordinates)
+* `K` — **The Neon Gold Key** (Required to clear exit validation flags)
+* `G` — **The Exit Goal Gate** (Triggers level advancement if key validation passes)
+* `.` — **Empty Corridors / Open Air Space**
 
-**K**: Key
-
-**G**: Goal (Exit)
-
-**.**: Empty Space
+*Every grid cell maps to an explicit index layout, making it entirely open-source and easy to customize.*
