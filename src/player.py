@@ -1,10 +1,10 @@
 import pygame
-from .settings import PLAYER_SPEED, NEON_GOLD
+from .settings import NEON_GOLD
 from .utils import Pulse
 
 class Player:
     
-    def __init__(self, x, y, audio_manager, max_radius, cooldown):
+    def __init__(self, x, y, audio_manager, max_radius, cooldown, base_speed):
         self.pos = pygame.math.Vector2(x, y)
         self.vel = pygame.math.Vector2(0, 0)
         self.pulses = []
@@ -15,6 +15,7 @@ class Player:
         
         self.max_radius = max_radius
         self.cooldown = cooldown
+        self.base_speed = base_speed
         
         self.audio_manager = audio_manager
         self.footstep_delay = 350
@@ -28,7 +29,7 @@ class Player:
         self.vel.y = keys[pygame.K_s] - keys[pygame.K_w]
         
         if self.vel.length() > 0:
-            current_speed = PLAYER_SPEED
+            current_speed = self.base_speed
             
             for pulse in self.pulses:
                 dist_to_wave = self.pos.distance_to(pulse.pos)
@@ -36,7 +37,7 @@ class Player:
                 tolerance = 12
                 
                 if abs(dist_to_wave - pulse.radius) <= tolerance:
-                    current_speed = PLAYER_SPEED * 1.5
+                    current_speed = self.base_speed * 1.5
                     break
 
             self.vel = self.vel.normalize() * current_speed

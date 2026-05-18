@@ -46,10 +46,17 @@ class EchoLocation:
         
         dynamic_radius = PULSE_MAX_RADIUS * self.shop_manager.get_radius_modifier()
         dynamic_cooldown = PULSE_COOLDOWN * self.shop_manager.get_cooldown_modifier()
+        dynamic_speed = PLAYER_SPEED * self.shop_manager.get_speed_modifier()
         
-        self.player = Player(*self.level.player_spawn_pos, self.audio_manager, dynamic_radius, dynamic_cooldown)
+        self.player = Player(
+            self.level.player_spawn_pos[0], 
+            self.level.player_spawn_pos[1], 
+            self.audio_manager, 
+            dynamic_radius, 
+            dynamic_cooldown,
+            dynamic_speed
+        )
         self.player.xp = self.current_xp
-        
         self.player.pulses = []
         
         self.enemies = [
@@ -74,11 +81,9 @@ class EchoLocation:
         
         if self.current_level_idx < len(self.level_files):
             self.level = Level(self.level_files[self.current_level_idx])
-            self._reset_game()
         else:
             procedural_layout = self.generator.generate(self.current_level_idx + 1)
             self.level = Level(procedural_layout)
-            self._reset_game()
             
         self.camera = Camera(self.level.width, self.level.height)
         self._reset_game()
@@ -120,6 +125,11 @@ class EchoLocation:
                         if success:
                             self.player.xp = self.current_xp
                             self.player.cooldown = PULSE_COOLDOWN * self.shop_manager.get_cooldown_modifier()
+                    elif event.key == pygame.K_3:
+                        success, self.current_xp = self.shop_manager.try_upgrade_speed(self.current_xp)
+                        if success:
+                            self.player.xp = self.current_xp
+                            self.player.base_speed = PLAYER_SPEED * self.shop_manager.get_speed_modifier()
 
 
     def _update_game(self):
@@ -140,8 +150,6 @@ class EchoLocation:
         
         if self.level.goal_rect and self.player.rect.colliderect(self.level.goal_rect):
             if self.player.has_key:
-                self.audio_manager.play_effect('level_finish')
-                
                 self._next_level()
 
 
