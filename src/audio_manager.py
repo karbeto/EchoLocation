@@ -32,7 +32,7 @@ class AudioManager:
         try:
             self.sounds['pulse'] = pygame.mixer.Sound(os.path.join(self.base_path, "pulse.wav"))
             self.sounds['footsteps'] = pygame.mixer.Sound(os.path.join(self.base_path, "footsteps.wav"))
-            self.sounds['enemy'] = pygame.mixer.Sound(os.path.join(self.base_path, "enemy.flac"))
+            self.sounds['enemy'] = pygame.mixer.Sound(os.path.join(self.base_path, "enemy.wav"))
             self.sounds['key_found'] = pygame.mixer.Sound(os.path.join(self.base_path, "key_found.flac"))
             self.sounds['level_finish'] = pygame.mixer.Sound(os.path.join(self.base_path, "level_finish.wav"))
             self.sounds['chime_wall_hit'] = pygame.mixer.Sound(os.path.join(self.base_path, "chime_wall_hit.wav"))
