@@ -1,6 +1,6 @@
 import pygame
-from .settings import NEON_GOLD
-from .utils import Pulse
+from src.settings import NEON_GOLD
+from src.utils import Pulse
 
 class Player:
     
@@ -25,6 +25,9 @@ class Player:
     def handle_input(self):
         keys = pygame.key.get_pressed()
         
+        self.vel.x = 0
+        self.vel.y = 0
+        
         self.vel.x = keys[pygame.K_d] - keys[pygame.K_a]
         self.vel.y = keys[pygame.K_s] - keys[pygame.K_w]
         
@@ -33,7 +36,6 @@ class Player:
             
             for pulse in self.pulses:
                 dist_to_wave = self.pos.distance_to(pulse.pos)
-                
                 tolerance = 12
                 
                 if abs(dist_to_wave - pulse.radius) <= tolerance:

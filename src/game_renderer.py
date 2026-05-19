@@ -1,5 +1,5 @@
 import pygame
-from .settings import SCREEN_WIDTH, SCREEN_HEIGHT, BLACK, NEON_CYAN, NEON_GOLD, VISION_PERSISTENCE, NEON_ORANGE
+from src.settings import SCREEN_WIDTH, SCREEN_HEIGHT, BLACK, NEON_CYAN, NEON_GOLD, VISION_PERSISTENCE, NEON_ORANGE
 
 class GameRenderer:
     
@@ -34,10 +34,8 @@ class GameRenderer:
         player.draw(self.world_surface, camera)
         
         fade_overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT))
-        
         decay_rate = max(2, min(VISION_PERSISTENCE, 6))
         fade_overlay.set_alpha(decay_rate) 
-        
         fade_overlay.fill(BLACK)
         self.mask_surface.blit(fade_overlay, (0, 0))
         

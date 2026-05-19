@@ -1,5 +1,6 @@
 import pygame
 from .settings import NEON_CYAN, NEON_GOLD
+from src.audio_manager import resource_path
 
 class Level:
     
@@ -23,7 +24,7 @@ class Level:
 
     def load_level(self, path):
         try:
-            with open(path, 'r') as f:
+            with open(resource_path(path), 'r') as f:
                 lines = f.readlines()
                 if not lines:
                     return

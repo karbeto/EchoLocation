@@ -1,6 +1,6 @@
 import pygame
 import random
-from .settings import *
+from src.settings import ENEMY_SPEED, NEON_RED
 
 class Enemy:
     

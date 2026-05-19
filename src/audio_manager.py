@@ -1,18 +1,29 @@
 import pygame
 import os
+import sys
 
 pygame.mixer.pre_init(44100, -16, 2, 1024)
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
 
 class AudioManager:
     
     def __init__(self):
         self.sounds = {}
-        self.base_path = os.path.join("assets", "audio")
+        self.base_path = resource_path(os.path.join("assets", "audio"))
         
         pygame.mixer.set_num_channels(16)
         
         self.footstep_channel = pygame.mixer.Channel(0)
         self.pulse_channel = pygame.mixer.Channel(1)
+        self.enemy_channel = pygame.mixer.Channel(2)
         
         self.load_assets()
 
@@ -45,6 +56,10 @@ class AudioManager:
                 self.sounds['footsteps'].set_volume(volume)
                 if not self.footstep_channel.get_busy():
                     self.footstep_channel.play(self.sounds['footsteps'])
+            elif sound_name == 'enemy':
+                self.sounds['enemy'].set_volume(volume)
+                if not self.enemy_channel.get_busy():
+                    self.enemy_channel.play(self.sounds['enemy'])
             else:
                 self.sounds[sound_name].set_volume(volume)
                 self.sounds[sound_name].play()
